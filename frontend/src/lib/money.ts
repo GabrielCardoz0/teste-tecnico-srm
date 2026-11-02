@@ -1,5 +1,29 @@
 const BRAZILIAN_AMOUNT = /^(\d{1,3}(\.\d{3})+|\d+)(,\d{1,2})?$/
 
+const MAX_INTEGER_DIGITS = 17
+
+function groupThousands(digits: string): string {
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+}
+
+export function maskCentsInput(raw: string, pasted = false): string {
+  let digits = raw.replace(/\D/g, "")
+  if (pasted) {
+    const decimals = raw.trim().match(/[.,](\d{1,2})$/)
+    if (!decimals) {
+      digits += "00"
+    } else if (decimals[1].length === 1) {
+      digits += "0"
+    }
+  }
+  digits = digits.replace(/^0+/, "").slice(0, MAX_INTEGER_DIGITS + 2)
+  if (!digits) {
+    return ""
+  }
+  const padded = digits.padStart(3, "0")
+  return `${groupThousands(padded.slice(0, -2))},${padded.slice(-2)}`
+}
+
 export function parseBrazilianAmount(input: string): string | null {
   const text = input.trim()
   if (!BRAZILIAN_AMOUNT.test(text)) {
@@ -11,13 +35,6 @@ export function parseBrazilianAmount(input: string): string | null {
     return null
   }
   return fraction ? `${digits}.${fraction}` : digits
-}
-
-export function formatBrazilianAmount(normalized: string): string {
-  const [integerPart, fraction = ""] = normalized.split(".")
-  const digits = integerPart.replace(/^0+(?=\d)/, "")
-  const grouped = digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-  return `${grouped},${fraction.padEnd(2, "0")}`
 }
 
 const brl = new Intl.NumberFormat("pt-BR", {
