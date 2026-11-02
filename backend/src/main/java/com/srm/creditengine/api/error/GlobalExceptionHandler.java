@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.srm.creditengine.domain.BusinessRuleViolationException;
 import com.srm.creditengine.domain.exchangerate.ExchangeRateNotFoundException;
+import com.srm.creditengine.domain.receivable.ReceivableNotFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -50,6 +51,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	ProblemDetail handleExchangeRateNotFound(ExchangeRateNotFoundException ex) {
 		ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
 		problem.setTitle("Exchange rate not found");
+		return problem;
+	}
+
+	@ExceptionHandler(ReceivableNotFoundException.class)
+	ProblemDetail handleReceivableNotFound(ReceivableNotFoundException ex) {
+		ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+		problem.setTitle("Receivable not found");
 		return problem;
 	}
 
