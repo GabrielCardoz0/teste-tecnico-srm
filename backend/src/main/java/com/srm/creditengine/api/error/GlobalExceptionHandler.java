@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.srm.creditengine.domain.exchangerate.ExchangeRateNotFoundException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -34,6 +36,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		problem.setTitle("Invalid request");
 		problem.setProperty("errors", violations);
 		return handleExceptionInternal(ex, problem, headers, status, request);
+	}
+
+	@ExceptionHandler(ExchangeRateNotFoundException.class)
+	ProblemDetail handleExchangeRateNotFound(ExchangeRateNotFoundException ex) {
+		ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+		problem.setTitle("Exchange rate not found");
+		return problem;
 	}
 
 	@ExceptionHandler(Exception.class)
