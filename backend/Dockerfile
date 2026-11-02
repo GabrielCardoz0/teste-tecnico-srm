@@ -1,7 +1,6 @@
 FROM eclipse-temurin:21-jdk AS build
 WORKDIR /workspace
 
-# Dependencies first, so this layer is cached until the pom changes.
 COPY mvnw pom.xml ./
 COPY .mvn .mvn
 RUN ./mvnw -q dependency:go-offline
