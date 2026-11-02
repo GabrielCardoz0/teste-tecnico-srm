@@ -5,6 +5,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,10 +34,15 @@ public class ExchangeRateService {
 	}
 
 	@Transactional(readOnly = true)
-	public ExchangeRate current() {
+	public Optional<ExchangeRate> findCurrent() {
 		return repository
 				.findFirstBySourceCurrencyAndTargetCurrencyAndValidFromLessThanEqualOrderByValidFromDescIdDesc(
-						CurrencyCode.USD, CurrencyCode.BRL, Instant.now(clock))
+						CurrencyCode.USD, CurrencyCode.BRL, Instant.now(clock));
+	}
+
+	@Transactional(readOnly = true)
+	public ExchangeRate current() {
+		return findCurrent()
 				.orElseThrow(() -> ExchangeRateNotFoundException.noCurrentRate(CurrencyCode.USD, CurrencyCode.BRL));
 	}
 
