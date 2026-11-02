@@ -15,11 +15,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-/**
- * Converts every error into a {@link ProblemDetail}. The base class already maps the
- * standard Spring MVC exceptions (malformed JSON, unsupported media type, 404 and so on);
- * here we only enrich validation errors and add a safe fallback for unexpected ones.
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
