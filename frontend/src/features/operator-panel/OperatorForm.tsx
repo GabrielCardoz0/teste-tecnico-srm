@@ -1,4 +1,5 @@
 import { CurrencyToggle } from "@/components/CurrencyToggle"
+import { MoneyInput } from "@/components/MoneyInput"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -26,7 +27,6 @@ type OperatorFormProps = {
     field: F,
     value: OperatorFormValues[F]
   ) => void
-  onFaceValueBlur: () => void
 }
 
 export function OperatorForm({
@@ -34,7 +34,6 @@ export function OperatorForm({
   errors,
   assignors,
   onChange,
-  onFaceValueBlur,
 }: OperatorFormProps) {
   const assignorItems =
     assignors.status === "success"
@@ -119,22 +118,19 @@ export function OperatorForm({
         id="faceValue"
         label="Valor de face"
         error={errors.faceValue}
-        hint="Use vírgula para os centavos. Ex.: 100.000,50"
+        hint="Digite só os números: os centavos entram primeiro (123 → 1,23)."
         className="sm:col-span-2"
       >
         <div className="relative">
           <span className="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-muted-foreground">
             R$
           </span>
-          <Input
+          <MoneyInput
             id="faceValue"
-            inputMode="decimal"
-            autoComplete="off"
             placeholder="0,00"
             className="pl-9 tabular-nums"
             value={values.faceValue}
-            onChange={(event) => onChange("faceValue", event.target.value)}
-            onBlur={onFaceValueBlur}
+            onValueChange={(value) => onChange("faceValue", value)}
             aria-invalid={!!errors.faceValue}
             aria-describedby={
               errors.faceValue ? "faceValue-error" : "faceValue-hint"

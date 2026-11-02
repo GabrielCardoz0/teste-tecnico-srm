@@ -67,7 +67,6 @@ export function OperatorPanel({ assignors }: { assignors: AssignorsState }) {
               errors={form.errors}
               assignors={assignors}
               onChange={form.setField}
-              onFaceValueBlur={form.formatFaceValue}
             />
             <RegistrationStatus state={registration.state} />
           </CardContent>

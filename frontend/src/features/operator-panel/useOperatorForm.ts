@@ -2,7 +2,7 @@ import { useState } from "react"
 
 import type { FieldViolation } from "@/lib/api"
 import type { PaymentCurrency, ReceivableType } from "@/lib/domain"
-import { formatBrazilianAmount, parseBrazilianAmount } from "@/lib/money"
+import { parseBrazilianAmount } from "@/lib/money"
 
 export type OperatorFormValues = {
   assignorId: string
@@ -45,16 +45,6 @@ export function useOperatorForm() {
     setFieldErrors((current) => ({ ...current, [field]: undefined }))
   }
 
-  function formatFaceValue() {
-    const normalized = parseBrazilianAmount(values.faceValue)
-    if (normalized) {
-      setValues((current) => ({
-        ...current,
-        faceValue: formatBrazilianAmount(normalized),
-      }))
-    }
-  }
-
   function applyServerErrors(violations: FieldViolation[]) {
     setFieldErrors(
       Object.fromEntries(
@@ -92,14 +82,14 @@ export function useOperatorForm() {
   const faceValue = parseBrazilianAmount(values.faceValue)
   const errors: OperatorFormErrors = { ...fieldErrors }
   if (values.faceValue.trim() !== "" && faceValue === null) {
-    errors.faceValue =
-      "Valor inválido. Use o formato 100.000,50 (até 2 casas decimais)."
+    errors.faceValue = /[1-9]/.test(values.faceValue)
+      ? "Valor inválido. Use o formato 100.000,50 (até 2 casas decimais)."
+      : "O valor de face deve ser maior que zero."
   }
 
   return {
     values,
     setField,
-    formatFaceValue,
     faceValue,
     errors,
     applyServerErrors,
