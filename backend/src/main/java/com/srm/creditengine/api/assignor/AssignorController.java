@@ -2,27 +2,25 @@ package com.srm.creditengine.api.assignor;
 
 import java.util.List;
 
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.srm.creditengine.infrastructure.persistence.assignor.AssignorRepository;
+import com.srm.creditengine.domain.assignor.AssignorService;
 
 @RestController
 @RequestMapping("/assignors")
 public class AssignorController {
 
-	private final AssignorRepository repository;
+	private final AssignorService service;
 
-	public AssignorController(AssignorRepository repository) {
-		this.repository = repository;
+	public AssignorController(AssignorService service) {
+		this.service = service;
 	}
 
 	@GetMapping
-	@Transactional(readOnly = true)
 	List<AssignorResponse> listActive() {
-		return repository.findAllByActiveTrueOrderByLegalNameAsc().stream().map(AssignorResponse::from).toList();
+		return service.listActive().stream().map(AssignorResponse::from).toList();
 	}
 
 }
