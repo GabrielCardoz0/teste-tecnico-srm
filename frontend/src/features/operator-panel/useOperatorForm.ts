@@ -2,7 +2,7 @@ import { useState } from "react"
 
 import type { FieldViolation } from "@/lib/api"
 import type { PaymentCurrency, ReceivableType } from "@/lib/domain"
-import { parseBrazilianAmount } from "@/lib/money"
+import { formatBrazilianAmount, parseBrazilianAmount } from "@/lib/money"
 
 export type OperatorFormValues = {
   assignorId: string
@@ -43,6 +43,16 @@ export function useOperatorForm() {
   ) {
     setValues((current) => ({ ...current, [field]: value }))
     setFieldErrors((current) => ({ ...current, [field]: undefined }))
+  }
+
+  function formatFaceValue() {
+    const normalized = parseBrazilianAmount(values.faceValue)
+    if (normalized) {
+      setValues((current) => ({
+        ...current,
+        faceValue: formatBrazilianAmount(normalized),
+      }))
+    }
   }
 
   function applyServerErrors(violations: FieldViolation[]) {
@@ -89,6 +99,7 @@ export function useOperatorForm() {
   return {
     values,
     setField,
+    formatFaceValue,
     faceValue,
     errors,
     applyServerErrors,

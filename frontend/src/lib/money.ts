@@ -13,6 +13,13 @@ export function parseBrazilianAmount(input: string): string | null {
   return fraction ? `${digits}.${fraction}` : digits
 }
 
+export function formatBrazilianAmount(normalized: string): string {
+  const [integerPart, fraction = ""] = normalized.split(".")
+  const digits = integerPart.replace(/^0+(?=\d)/, "")
+  const grouped = digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+  return `${grouped},${fraction.padEnd(2, "0")}`
+}
+
 const brl = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
