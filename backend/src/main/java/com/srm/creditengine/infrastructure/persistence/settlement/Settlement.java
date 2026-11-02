@@ -26,6 +26,8 @@ import jakarta.persistence.Table;
 @Table(name = "settlement")
 public class Settlement {
 
+	private static final int RATE_SCALE = 8;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -87,8 +89,8 @@ public class Settlement {
 		this.receivableType = receivable.getType();
 		this.faceValue = receivable.getFaceValue();
 		this.termMonths = termMonths;
-		this.baseRate = pricing.baseRate();
-		this.spread = pricing.spread();
+		this.baseRate = pricing.baseRate().setScale(RATE_SCALE);
+		this.spread = pricing.spread().setScale(RATE_SCALE);
 		this.presentValueBrl = pricing.presentValueBrl();
 		this.discountBrl = pricing.discountBrl();
 		this.paymentCurrency = pricing.paymentCurrency();
