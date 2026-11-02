@@ -1,0 +1,25 @@
+### Decisões de escopo: o que foi cortado ou simplificado
+
+1. **Prazo em meses inteiros, arredondado para cima** [spec.1]
+Decisão: Não foi usada a convenção de mercado em dias (ano de 360 dias ou 252 dias úteis), que exige converter as taxas para taxas equivalentes diárias.
+Motivo: Manter o expoente inteiro em BigDecimal para cálculos exatos e simplificar o projeto.
+
+2. **Prazo igual a 0 ou negativo é recusado** [spec.2]
+Decisão: Títulos vencidos ou que vencem no dia serão recusados pela API .
+Motivo: A engine foi pensada para valores futuros a receber; o tratamento depende de uma resposta do negócio.
+
+3. **Taxa base mockada em 1% a.m.** [spec.3]
+Decisão: Visando simplificar o projeto, não há serviço nem tabela para gerenciar a taxa base, e ela é fixa no código.
+Motivo: Não foi definida a origem da taxa base ou alguma referência (como o CDI) ou se a mesma varia ao longo do tempo.
+
+4. **Conversão apenas de BRL para USD** [spec.8]
+Decisão: A engine não irá trabalhar com títulos em USD.
+Motivo: Economizar tempo e esforço, já que é o único fluxo descrito no enunciado. Mas nada impede a adição do caminho inverso, caso o negócio confirme essa necessidade.
+
+5. **Taxa de câmbio sem prazo de validade** [spec.9]
+Decisão: O sistema não verifica se a cotação mais recente está defasada, e não registra data de validade. Com isso, aceito o risco de que caso nenhuma cotação nova seja cadastrada, a liquidação irá usar uma taxa defasada.
+Motivo: O prazo máximo aceitável e como tratar casos de vencimento da taxa depende de uma resposta do negócio.
+
+6. **Cedentes via seed, apenas com listagem** [spec.11]
+Decisão: Com o objetivo de manter o projeto simples, não haverá endpoints de gestão de cedentes, mesmo imaginando que seria algo natural ao projeto.
+Motivo: Simplificar o projeto, e o enunciado não pede gestão de cedentes. A listagem basta para o painel do operador e para o filtro do extrato.
