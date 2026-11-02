@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 
 import { Button } from "@/components/ui/button"
-import { useAssignors } from "@/features/assignors/useAssignors"
+import type { AssignorsState } from "@/features/assignors/useAssignors"
 import { DuplicateDialog } from "@/features/receivables/DuplicateDialog"
 import { RegistrationStatus } from "@/features/receivables/RegistrationStatus"
 import { useReceivableRegistration } from "@/features/receivables/useReceivableRegistration"
@@ -12,8 +12,7 @@ import { useSimulation } from "@/features/simulation/useSimulation"
 import { OperatorForm } from "./OperatorForm"
 import { useOperatorForm } from "./useOperatorForm"
 
-export function OperatorPanel() {
-  const assignors = useAssignors()
+export function OperatorPanel({ assignors }: { assignors: AssignorsState }) {
   const form = useOperatorForm()
   const registration = useReceivableRegistration({
     onRegistered: form.reset,
