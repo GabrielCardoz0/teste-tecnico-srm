@@ -15,5 +15,17 @@ services:
       timeout: 3s
       retries: 10
 
+  app:
+    build: ./backend
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/credit_engine
+      DB_USERNAME: credit_engine
+      DB_PASSWORD: credit_engine
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   postgres-data:
