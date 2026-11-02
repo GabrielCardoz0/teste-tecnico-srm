@@ -23,7 +23,7 @@ import com.srm.creditengine.domain.exchangerate.ExchangeRateNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
-@WebMvcTest
+@WebMvcTest(GlobalExceptionHandlerTest.ProbeController.class)
 @Import(GlobalExceptionHandlerTest.ProbeController.class)
 class GlobalExceptionHandlerTest {
 

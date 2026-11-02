@@ -50,6 +50,20 @@ class ExchangeRateServiceTest {
 	}
 
 	@Test
+	void registeredValuesMatchDatabasePrecision() {
+		when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+		ExchangeRateService nanosClockService = new ExchangeRateService(repository,
+				Clock.fixed(Instant.parse("2026-01-15T15:00:00.123456789Z"), ZoneId.of("America/Sao_Paulo")));
+
+		ExchangeRate saved = nanosClockService.register(CurrencyCode.USD, CurrencyCode.BRL,
+				new BigDecimal("5.4321"), Instant.parse("2026-01-20T12:00:00.987654321Z"));
+
+		assertThat(saved.getCreatedAt()).isEqualTo(Instant.parse("2026-01-15T15:00:00.123456Z"));
+		assertThat(saved.getValidFrom()).isEqualTo(Instant.parse("2026-01-20T12:00:00.987654Z"));
+		assertThat(saved.getRate()).isEqualTo(new BigDecimal("5.43210000"));
+	}
+
+	@Test
 	void currentLooksUpUsdBrlAtClockInstant() {
 		ExchangeRate rate = new ExchangeRate(CurrencyCode.USD, CurrencyCode.BRL, new BigDecimal("5.4321"), NOW, NOW);
 		when(repository.findFirstBySourceCurrencyAndTargetCurrencyAndValidFromLessThanEqualOrderByValidFromDescIdDesc(

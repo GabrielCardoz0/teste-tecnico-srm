@@ -3,6 +3,7 @@ package com.srm.creditengine.domain.exchangerate;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -14,6 +15,8 @@ import com.srm.creditengine.infrastructure.persistence.exchangerate.ExchangeRate
 @Service
 public class ExchangeRateService {
 
+	private static final int RATE_SCALE = 8;
+
 	private final ExchangeRateRepository repository;
 	private final Clock clock;
 
@@ -24,8 +27,9 @@ public class ExchangeRateService {
 
 	@Transactional
 	public ExchangeRate register(CurrencyCode source, CurrencyCode target, BigDecimal rate, Instant validFrom) {
-		Instant now = Instant.now(clock);
-		return repository.save(new ExchangeRate(source, target, rate, validFrom != null ? validFrom : now, now));
+		Instant now = Instant.now(clock).truncatedTo(ChronoUnit.MICROS);
+		Instant effectiveValidFrom = validFrom != null ? validFrom.truncatedTo(ChronoUnit.MICROS) : now;
+		return repository.save(new ExchangeRate(source, target, rate.setScale(RATE_SCALE), effectiveValidFrom, now));
 	}
 
 	@Transactional(readOnly = true)
