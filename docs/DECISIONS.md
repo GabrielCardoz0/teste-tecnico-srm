@@ -23,3 +23,8 @@ Motivo: O prazo máximo aceitável e como tratar casos de vencimento da taxa dep
 6. **Cedentes via seed, apenas com listagem** [spec.11]
 Decisão: Com o objetivo de manter o projeto simples, não haverá endpoints de gestão de cedentes, mesmo imaginando que seria algo natural ao projeto.
 Motivo: Simplificar o projeto, e o enunciado não pede gestão de cedentes. A listagem basta para o painel do operador e para o filtro do extrato.
+
+
+7. **Sem testes automatizados no frontend**
+Decisão: o frontend será verificado manualmente, os testes automatizados já cobrem o backend.
+Motivo: o teste técnico exige apenas testes do cálculo, das strategies e da idempotência, todos no backend, nada sobre testes no frontend, já que ele não calcula valores financeiros, só exibe o que a API devolve.
