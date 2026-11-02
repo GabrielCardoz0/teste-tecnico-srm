@@ -1,4 +1,4 @@
-import { apiFetch } from "@/lib/api"
+import { apiFetch, type Page } from "@/lib/api"
 import type { ReceivableType } from "@/lib/domain"
 
 export type CreateReceivableRequest = {
@@ -16,11 +16,6 @@ export type Receivable = {
   dueDate: string
   status: "PENDING" | "SETTLED"
   createdAt: string
-}
-
-type Page<T> = {
-  content: T[]
-  totalElements: number
 }
 
 export function createReceivable(
@@ -43,4 +38,16 @@ export async function hasSimilarReceivable(
   })
   const page = await apiFetch<Page<Receivable>>(`/receivables?${query}`)
   return page.totalElements > 0
+}
+
+export function listReceivables(
+  filter: { status: Receivable["status"]; page: number; size: number },
+  signal: AbortSignal
+): Promise<Page<Receivable>> {
+  const query = new URLSearchParams({
+    status: filter.status,
+    page: String(filter.page),
+    size: String(filter.size),
+  })
+  return apiFetch<Page<Receivable>>(`/receivables?${query}`, { signal })
 }

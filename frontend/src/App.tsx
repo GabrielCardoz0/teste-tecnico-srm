@@ -1,13 +1,15 @@
 import { useAssignors } from "@/features/assignors/useAssignors"
 import { OperatorPanel } from "@/features/operator-panel/OperatorPanel"
+import { PendingReceivablesPage } from "@/features/receivables/PendingReceivablesPage"
 import { useHashRoute } from "@/lib/useHashRoute"
 
-const ROUTES = ["painel"] as const
+const ROUTES = ["painel", "pendentes"] as const
 
 type Route = (typeof ROUTES)[number]
 
 const NAVIGATION: { route: Route; label: string }[] = [
   { route: "painel", label: "Painel do operador" },
+  { route: "pendentes", label: "Liquidações pendentes" },
 ]
 
 export function App() {
@@ -36,6 +38,9 @@ export function App() {
       </header>
 
       {route === "painel" && <OperatorPanel assignors={assignors} />}
+      {route === "pendentes" && (
+        <PendingReceivablesPage assignors={assignors} />
+      )}
     </main>
   )
 }
