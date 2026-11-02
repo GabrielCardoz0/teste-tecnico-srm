@@ -1,7 +1,7 @@
 # SRM Credit Engine — instruções para o Claude
 
 ## Contexto
-Teste técnico para vaga de desenvolvedor **pleno**. Enunciado em `docs/ENUNCIADO.md`.
+Teste técnico para vaga de desenvolvedor **pleno**. Enunciado em `/teste-tecnico.md`.
 Siga apenas os requisitos de júnior e pleno. Não implemente itens de sênior/staff (optimistic locking, métricas, circuit breaker, CI, C4).
 
 `SPEC.md` (premissas) e `DECISIONS.md` (cortes de escopo) já estão decididos. **Não os altere nem contrarie.** Se encontrar conflito, lacuna ou ambiguidade, pergunte antes de decidir.
