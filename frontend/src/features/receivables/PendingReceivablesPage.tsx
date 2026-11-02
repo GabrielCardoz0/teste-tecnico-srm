@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/PageHeader"
 import { Button } from "@/components/ui/button"
 import type { AssignorsState } from "@/features/assignors/useAssignors"
 import { SettlementDialog } from "@/features/settlements/SettlementDialog"
@@ -31,15 +32,22 @@ export function PendingReceivablesPage({
   }
 
   return (
-    <section className="flex flex-col gap-4">
-      <h2 className="font-medium">Recebíveis pendentes</h2>
+    <section className="flex flex-col gap-6">
+      <PageHeader
+        title="Liquidações pendentes"
+        description="Recebíveis cadastrados que aguardam liquidação."
+      />
       <PendingReceivablesList
         state={pending.state}
         assignorName={assignorName}
         onPreviousPage={pending.previousPage}
         onNextPage={pending.nextPage}
         renderAction={(receivable) => (
-          <Button size="sm" onClick={() => settlement.start(receivable)}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => settlement.start(receivable)}
+          >
             Liquidar
           </Button>
         )}

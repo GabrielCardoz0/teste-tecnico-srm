@@ -1,3 +1,4 @@
+import { CurrencyToggle } from "@/components/CurrencyToggle"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -8,12 +9,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import type { AssignorsState } from "@/features/assignors/useAssignors"
-import {
-  PAYMENT_CURRENCY_LABELS,
-  RECEIVABLE_TYPE_LABELS,
-  type PaymentCurrency,
-  type ReceivableType,
-} from "@/lib/domain"
+import { RECEIVABLE_TYPE_LABELS, type ReceivableType } from "@/lib/domain"
+import { cn } from "@/lib/utils"
 
 import type {
   OperatorFormErrors,
@@ -29,6 +26,7 @@ type OperatorFormProps = {
     field: F,
     value: OperatorFormValues[F]
   ) => void
+  onFaceValueBlur: () => void
 }
 
 export function OperatorForm({
@@ -36,6 +34,7 @@ export function OperatorForm({
   errors,
   assignors,
   onChange,
+  onFaceValueBlur,
 }: OperatorFormProps) {
   const assignorItems =
     assignors.status === "success"
@@ -48,8 +47,13 @@ export function OperatorForm({
       : {}
 
   return (
-    <div className="flex flex-col gap-4">
-      <Field id="assignorId" label="Cedente" error={errors.assignorId}>
+    <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+      <Field
+        id="assignorId"
+        label="Cedente"
+        error={errors.assignorId}
+        className="sm:col-span-2"
+      >
         <Select
           id="assignorId"
           items={assignorItems}
@@ -62,7 +66,9 @@ export function OperatorForm({
               placeholder={
                 assignors.status === "error"
                   ? "Não foi possível carregar os cedentes"
-                  : "Selecione o cedente"
+                  : assignors.status === "loading"
+                    ? "Carregando cedentes..."
+                    : "Selecione o cedente"
               }
             />
           </SelectTrigger>
@@ -98,18 +104,6 @@ export function OperatorForm({
         </Select>
       </Field>
 
-      <Field id="faceValue" label="Valor de face (R$)" error={errors.faceValue}>
-        <Input
-          id="faceValue"
-          inputMode="decimal"
-          placeholder="100.000,00"
-          value={values.faceValue}
-          onChange={(event) => onChange("faceValue", event.target.value)}
-          aria-invalid={!!errors.faceValue}
-          aria-describedby={errors.faceValue ? "faceValue-error" : undefined}
-        />
-      </Field>
-
       <Field id="dueDate" label="Vencimento" error={errors.dueDate}>
         <Input
           id="dueDate"
@@ -122,29 +116,44 @@ export function OperatorForm({
       </Field>
 
       <Field
+        id="faceValue"
+        label="Valor de face"
+        error={errors.faceValue}
+        hint="Use vírgula para os centavos. Ex.: 100.000,50"
+        className="sm:col-span-2"
+      >
+        <div className="relative">
+          <span className="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-muted-foreground">
+            R$
+          </span>
+          <Input
+            id="faceValue"
+            inputMode="decimal"
+            autoComplete="off"
+            placeholder="0,00"
+            className="pl-9 tabular-nums"
+            value={values.faceValue}
+            onChange={(event) => onChange("faceValue", event.target.value)}
+            onBlur={onFaceValueBlur}
+            aria-invalid={!!errors.faceValue}
+            aria-describedby={
+              errors.faceValue ? "faceValue-error" : "faceValue-hint"
+            }
+          />
+        </div>
+      </Field>
+
+      <Field
         id="paymentCurrency"
         label="Moeda de pagamento"
-        error={errors.paymentCurrency}
+        hint="Usada apenas na simulação; a moeda final é escolhida na liquidação."
+        className="sm:col-span-2"
       >
-        <Select
-          id="paymentCurrency"
-          items={PAYMENT_CURRENCY_LABELS}
+        <CurrencyToggle
           value={values.paymentCurrency}
-          onValueChange={(value) =>
-            value && onChange("paymentCurrency", value as PaymentCurrency)
-          }
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.entries(PAYMENT_CURRENCY_LABELS).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          onChange={(currency) => onChange("paymentCurrency", currency)}
+          labelledBy="paymentCurrency-label"
+        />
       </Field>
     </div>
   )
@@ -154,21 +163,33 @@ function Field({
   id,
   label,
   error,
+  hint,
+  className,
   children,
 }: {
   id: string
   label: string
   error?: string
+  hint?: string
+  className?: string
   children: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor={id}>{label}</Label>
+    <div className={cn("flex flex-col gap-2", className)}>
+      <Label id={`${id}-label`} htmlFor={id}>
+        {label}
+      </Label>
       {children}
-      {error && (
+      {error ? (
         <p id={`${id}-error`} className="text-xs text-destructive">
           {error}
         </p>
+      ) : (
+        hint && (
+          <p id={`${id}-hint`} className="text-xs text-muted-foreground">
+            {hint}
+          </p>
+        )
       )}
     </div>
   )

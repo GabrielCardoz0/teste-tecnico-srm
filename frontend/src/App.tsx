@@ -1,3 +1,10 @@
+import {
+  CalculatorIcon,
+  LandmarkIcon,
+  ListChecksIcon,
+  type LucideIcon,
+} from "lucide-react"
+
 import { useAssignors } from "@/features/assignors/useAssignors"
 import { OperatorPanel } from "@/features/operator-panel/OperatorPanel"
 import { PendingReceivablesPage } from "@/features/receivables/PendingReceivablesPage"
@@ -7,9 +14,9 @@ const ROUTES = ["painel", "pendentes"] as const
 
 type Route = (typeof ROUTES)[number]
 
-const NAVIGATION: { route: Route; label: string }[] = [
-  { route: "painel", label: "Painel do operador" },
-  { route: "pendentes", label: "Liquidações pendentes" },
+const NAVIGATION: { route: Route; label: string; icon: LucideIcon }[] = [
+  { route: "painel", label: "Painel do operador", icon: CalculatorIcon },
+  { route: "pendentes", label: "Liquidações pendentes", icon: ListChecksIcon },
 ]
 
 export function App() {
@@ -17,31 +24,48 @@ export function App() {
   const assignors = useAssignors()
 
   return (
-    <main className="mx-auto flex min-h-svh max-w-4xl flex-col gap-6 p-6 text-sm">
-      <header className="flex flex-col gap-3">
-        <h1 className="text-lg font-medium">SRM Credit Engine</h1>
-        <nav aria-label="Principal">
-          <ul className="flex gap-4 border-b">
-            {NAVIGATION.map((item) => (
-              <li key={item.route}>
-                <a
-                  href={`#/${item.route}`}
-                  aria-current={route === item.route ? "page" : undefined}
-                  className="-mb-px block border-b-2 border-transparent pb-2 text-muted-foreground hover:text-foreground aria-[current=page]:border-foreground aria-[current=page]:text-foreground"
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+    <div className="min-h-svh bg-muted/40 text-sm">
+      <header className="border-b bg-background">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="flex items-center gap-3 py-4">
+            <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <LandmarkIcon className="size-5" />
+            </div>
+            <div>
+              <p className="font-heading text-base leading-tight font-semibold">
+                SRM Credit Engine
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Cessão de crédito multimoedas
+              </p>
+            </div>
+          </div>
+          <nav aria-label="Principal">
+            <ul className="-mb-px flex gap-6">
+              {NAVIGATION.map((item) => (
+                <li key={item.route}>
+                  <a
+                    href={`#/${item.route}`}
+                    aria-current={route === item.route ? "page" : undefined}
+                    className="flex items-center gap-2 border-b-2 border-transparent pb-3 text-muted-foreground transition-colors hover:text-foreground aria-[current=page]:border-primary aria-[current=page]:font-medium aria-[current=page]:text-foreground"
+                  >
+                    <item.icon className="size-4" />
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
       </header>
 
-      {route === "painel" && <OperatorPanel assignors={assignors} />}
-      {route === "pendentes" && (
-        <PendingReceivablesPage assignors={assignors} />
-      )}
-    </main>
+      <main className="mx-auto max-w-6xl px-6 py-8">
+        {route === "painel" && <OperatorPanel assignors={assignors} />}
+        {route === "pendentes" && (
+          <PendingReceivablesPage assignors={assignors} />
+        )}
+      </main>
+    </div>
   )
 }
 

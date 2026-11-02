@@ -1,5 +1,7 @@
 import { useMemo } from "react"
 
+import { CurrencyToggle } from "@/components/CurrencyToggle"
+import { ProblemAlert } from "@/components/ProblemAlert"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,24 +12,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import type { Receivable } from "@/features/receivables/api"
 import type { SimulationRequest } from "@/features/simulation/api"
 import { SimulationResult } from "@/features/simulation/SimulationResult"
 import { useSimulation } from "@/features/simulation/useSimulation"
 import { formatDate } from "@/lib/datetime"
-import {
-  PAYMENT_CURRENCY_LABELS,
-  RECEIVABLE_TYPE_LABELS,
-  type PaymentCurrency,
-} from "@/lib/domain"
+import { RECEIVABLE_TYPE_LABELS, type PaymentCurrency } from "@/lib/domain"
 import { formatBrl } from "@/lib/money"
 
 import { SettlementSummary } from "./SettlementSummary"
@@ -74,73 +66,88 @@ export function SettlementDialog({
       open={receivable !== null}
       onOpenChange={(open) => !open && !submitting && onClose()}
     >
-      <AlertDialogContent>
+      <AlertDialogContent className="data-[size=default]:max-w-[calc(100%-2rem)] data-[size=default]:sm:max-w-lg">
         <AlertDialogHeader>
           <AlertDialogTitle>Liquidar recebível</AlertDialogTitle>
-          {receivable && (
-            <AlertDialogDescription>
-              {assignorName(receivable.assignorId)} ·{" "}
-              {RECEIVABLE_TYPE_LABELS[receivable.type]} ·{" "}
-              {formatBrl(receivable.faceValue)} · vence em{" "}
-              {formatDate(receivable.dueDate)}
-            </AlertDialogDescription>
-          )}
+          <AlertDialogDescription>
+            Confira o valor na moeda escolhida antes de confirmar.
+          </AlertDialogDescription>
         </AlertDialogHeader>
+
+        {receivable && (
+          <dl className="grid grid-cols-2 gap-x-6 gap-y-3 rounded-lg border p-4 text-sm">
+            <div className="col-span-2 flex flex-col gap-0.5">
+              <dt className="text-xs text-muted-foreground">Cedente</dt>
+              <dd className="font-medium">
+                {assignorName(receivable.assignorId)}
+              </dd>
+            </div>
+            <div className="flex flex-col gap-1">
+              <dt className="text-xs text-muted-foreground">Tipo</dt>
+              <dd>
+                <Badge variant="secondary">
+                  {RECEIVABLE_TYPE_LABELS[receivable.type]}
+                </Badge>
+              </dd>
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <dt className="text-xs text-muted-foreground">Vencimento</dt>
+              <dd className="tabular-nums">{formatDate(receivable.dueDate)}</dd>
+            </div>
+            <div className="col-span-2 flex flex-col gap-0.5">
+              <dt className="text-xs text-muted-foreground">Valor de face</dt>
+              <dd className="tabular-nums">
+                {formatBrl(receivable.faceValue)}
+              </dd>
+            </div>
+          </dl>
+        )}
 
         {state.status === "success" && (
           <SettlementSummary settlement={state.settlement} />
         )}
 
         {state.status === "conflict" && (
-          <p role="alert" className="text-destructive">
-            Este recebível já foi liquidado.
-          </p>
+          <ProblemAlert
+            title="Este recebível já foi liquidado"
+            problem={{
+              ...state.problem,
+              detail: "A lista será atualizada ao fechar.",
+            }}
+          />
         )}
 
         {!finished && (
-          <div className="flex flex-col gap-4 text-sm">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="settlementCurrency">Moeda de pagamento</Label>
-              <Select
-                id="settlementCurrency"
-                items={PAYMENT_CURRENCY_LABELS}
+          <div className="flex flex-col gap-5 text-sm">
+            <div className="flex flex-col gap-2">
+              <Label id="settlementCurrency-label">Moeda de pagamento</Label>
+              <CurrencyToggle
                 value={currency}
-                onValueChange={(value) =>
-                  value && onCurrencyChange(value as PaymentCurrency)
-                }
+                onChange={onCurrencyChange}
                 disabled={submitting}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(PAYMENT_CURRENCY_LABELS).map(
-                    ([value, label]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    )
-                  )}
-                </SelectContent>
-              </Select>
+                labelledBy="settlementCurrency-label"
+              />
             </div>
 
             <div aria-live="polite">
               <SimulationResult state={simulation} />
             </div>
 
-            {(state.status === "rejected" || state.status === "failed") && (
-              <div
-                role="alert"
-                className="flex flex-col gap-1 text-destructive"
-              >
-                <p className="font-medium">
-                  {state.status === "failed"
-                    ? "Não foi possível concluir a liquidação. Tente novamente."
-                    : "Não foi possível liquidar"}
-                </p>
-                {state.problem.detail && <p>{state.problem.detail}</p>}
-              </div>
+            {state.status === "failed" && (
+              <ProblemAlert
+                title="Não foi possível concluir a liquidação"
+                problem={{
+                  ...state.problem,
+                  detail:
+                    "Verifique a conexão e tente novamente. O reenvio é seguro: a liquidação não será duplicada.",
+                }}
+              />
+            )}
+            {state.status === "rejected" && (
+              <ProblemAlert
+                title="Não foi possível liquidar"
+                problem={state.problem}
+              />
             )}
           </div>
         )}
