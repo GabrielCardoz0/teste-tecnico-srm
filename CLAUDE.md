@@ -9,7 +9,7 @@ Siga apenas os requisitos de júnior e pleno. Não implemente itens de sênior/s
 ## Stack
 - Backend em `backend/`: Java 21, Spring Boot, Maven, PostgreSQL, Flyway, Testcontainers, springdoc-openapi.
 
-- Frontend em `frontend/`: React, TypeScript e Vite com estilização shadcn.
+- Frontend em `frontend/`: React, TypeScript e Vite com estilização shadcn/ui (tailwind css).
 
 ## Forma de trabalho
 - Trabalhamos em **etapas**. Em cada etapa, primeiro apresente o **plano** (classes, migrations, testes e a divisão em commits) e **espere minha aprovação** antes de escrever código.
@@ -84,3 +84,6 @@ O backend está completo. O frontend segue a mesma forma de trabalho: uma etapa 
 - Simulação em tempo real com debounce, sem botão (critério de aceite do SPEC).
 - A `Idempotency-Key` é gerada uma vez por tentativa de liquidação (`crypto.randomUUID()`), reaproveitada em qualquer reenvio e trocada só depois do sucesso.
 - Sem dependências desnecessárias: proponha e justifique cada biblioteca antes de adicioná-la.
+
+- Componentes do shadcn/ui adicionados só pela CLI (`npx shadcn add ...`) e só quando uma etapa precisar deles.
+- Sem dependências desnecessárias: proponha e justifique cada biblioteca antes de adicioná-la (inclusive as que alguns componentes do shadcn trazem junto, como as de formulário e validação).
