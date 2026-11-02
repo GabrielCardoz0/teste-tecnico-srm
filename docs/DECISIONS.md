@@ -28,3 +28,7 @@ Motivo: Simplificar o projeto, e o enunciado não pede gestão de cedentes. A li
 7. **Sem testes automatizados no frontend**
 Decisão: o frontend será verificado manualmente, os testes automatizados já cobrem o backend.
 Motivo: o teste técnico exige apenas testes do cálculo, das strategies e da idempotência, todos no backend, nada sobre testes no frontend, já que ele não calcula valores financeiros, só exibe o que a API devolve.
+
+8. **Valores monetários exibidos a partir do número JSON**
+Decisão: o frontend exibe os valores que a API devolve como número JSON, convertidos em `number` pelo `JSON.parse` e formatados com `Intl.NumberFormat` (pt-BR, 2 casas). Na entrada, o valor digitado é convertido como texto ("100.000,50" → "100000.50") e enviado como string, sem passar por `Number`.
+Motivo: o frontend nunca calcula, só exibe. O `number` é exato até ~15 dígitos significativos (cerca de R$ 9 trilhões com centavos), muito acima de qualquer recebível. Precisão total exigiria ler o texto bruto do JSON (`context.source` do reviver), recurso recente dos navegadores, com ganho prático nulo.
