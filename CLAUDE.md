@@ -9,6 +9,8 @@ Siga apenas os requisitos de júnior e pleno. Não implemente itens de sênior/s
 ## Stack
 - Backend em `backend/`: Java 21, Spring Boot, Maven, PostgreSQL, Flyway, Testcontainers, springdoc-openapi.
 
+- Frontend em `frontend/`: React, TypeScript e Vite com estilização shadcn.
+
 ## Forma de trabalho
 - Trabalhamos em **etapas**. Em cada etapa, primeiro apresente o **plano** (classes, migrations, testes e a divisão em commits) e **espere minha aprovação** antes de escrever código.
 - Implemente **uma mudança por vez**, do tamanho de um commit, e pare para eu revisar antes da próxima.
@@ -48,6 +50,17 @@ O backend é construído nesta ordem, uma etapa por branch. Em cada etapa, faça
 | 7 | `feat/settlements` | Migration e registro imutável da liquidação; `POST /settlements` com header `Idempotency-Key`, transacional (recalcula, grava e muda o recebível para `LIQUIDADO`); `UNIQUE` em `idempotency_key` e `receivable_id`; respostas 409 e 422; `GET /settlements/{id}`; testes de idempotência com Testcontainers |
 | 8 | `feat/settlement-statement` | `GET /settlements` com filtros por período, cedente e moeda e paginação server-side, em SQL nativo (`JdbcTemplate`) |
 
+
+### Roteiro do frontend
+O backend está completo. O frontend segue a mesma forma de trabalho: uma etapa por branch, plano antes do código.
+
+| # | Branch | Escopo |
+|---|---|---|
+| F1 | `chore/frontend-setup` | Projeto Vite (React + TypeScript) em `frontend/`, cliente HTTP, tratamento de `ProblemDetail`, proxy para a API (Vite em desenvolvimento, Nginx no Docker) e o frontend no `docker-compose.yml` |
+| F2 | `feat/operator-panel` | Painel do operador: formulário (cedente, tipo, valor de face, vencimento, moeda de pagamento) com simulação em tempo real, cadastro do recebível e aviso de possível duplicado (consulta `GET /receivables` com cedente, valor e vencimento antes de cadastrar) |
+| F3 | `feat/settlement-flow` | Lista de recebíveis pendentes com o botão "Liquidar", gerando a `Idempotency-Key` |
+| F4 | `feat/transactions-grid` | Grid de transações com paginação server-side e filtros dinâmicos (período, cedente, moeda), usando `GET /settlements` |
+
 ## Regras técnicas obrigatórias
 - Dinheiro, taxas e câmbio sempre em `BigDecimal`, criado a partir de String. **Nunca `float`/`double`.**
 - Comparação de `BigDecimal` com `compareTo` (nos testes, `isEqualByComparingTo`), nunca `equals`.
@@ -61,3 +74,13 @@ O backend é construído nesta ordem, uma etapa por branch. Em cada etapa, faça
 - Queries sempre parametrizadas. Nunca concatenar SQL.
 - Não criar classes, interfaces ou camadas antes de serem necessárias.
 - Testes que dependem de banco usam Testcontainers (Postgres real, nunca H2).
+
+## Regras do frontend
+- Separar apresentação de lógica (enunciado 4.2.3): componentes só exibem e capturam dados; chamadas à API e regras de tela ficam em hooks e módulos próprios.
+- Estado global só se houver justificativa (enunciado 4.2.3). Proponha e justifique antes de adicionar qualquer biblioteca de estado.
+- O frontend **nunca calcula valores financeiros**. Ele só envia o que o operador digitou e exibe o que o backend devolveu.
+- Valores monetários exibidos com `Intl.NumberFormat` no formato pt-BR.
+- Erros da API (`ProblemDetail`) aparecem para o operador: erros de validação no próprio campo, os demais numa mensagem clara.
+- Simulação em tempo real com debounce, sem botão (critério de aceite do SPEC).
+- A `Idempotency-Key` é gerada uma vez por tentativa de liquidação (`crypto.randomUUID()`), reaproveitada em qualquer reenvio e trocada só depois do sucesso.
+- Sem dependências desnecessárias: proponha e justifique cada biblioteca antes de adicioná-la.
