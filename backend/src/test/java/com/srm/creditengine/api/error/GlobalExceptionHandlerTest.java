@@ -17,10 +17,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.srm.creditengine.domain.exchangerate.CurrencyCode;
+import com.srm.creditengine.domain.exchangerate.ExchangeRateNotFoundException;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
-@WebMvcTest
+@WebMvcTest(GlobalExceptionHandlerTest.ProbeController.class)
 @Import(GlobalExceptionHandlerTest.ProbeController.class)
 class GlobalExceptionHandlerTest {
 
@@ -62,6 +65,16 @@ class GlobalExceptionHandlerTest {
 				.andExpect(jsonPath("$.detail").value("An unexpected error occurred."));
 	}
 
+	@Test
+	void missingExchangeRateReturns404ProblemDetail() throws Exception {
+		mockMvc.perform(get("/probe/missing-rate"))
+				.andExpect(status().isNotFound())
+				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+				.andExpect(jsonPath("$.status").value(404))
+				.andExpect(jsonPath("$.title").value("Exchange rate not found"))
+				.andExpect(jsonPath("$.detail").value("No current USD/BRL exchange rate"));
+	}
+
 	@RestController
 	static class ProbeController {
 
@@ -75,6 +88,11 @@ class GlobalExceptionHandlerTest {
 		@GetMapping("/probe/boom")
 		void boom() {
 			throw new IllegalStateException("secret internal detail");
+		}
+
+		@GetMapping("/probe/missing-rate")
+		void missingRate() {
+			throw ExchangeRateNotFoundException.noCurrentRate(CurrencyCode.USD, CurrencyCode.BRL);
 		}
 
 	}
