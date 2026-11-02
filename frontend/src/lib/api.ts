@@ -22,6 +22,12 @@ export class ApiError extends Error {
   }
 }
 
+export function problemOf(error: unknown): ProblemDetail {
+  return error instanceof ApiError
+    ? error.problem
+    : { title: "Erro inesperado", status: 0 }
+}
+
 const API_PREFIX = "/api"
 
 export async function apiFetch<T>(

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-import { ApiError, type ProblemDetail } from "@/lib/api"
+import { problemOf, type ProblemDetail } from "@/lib/api"
 
 import { listAssignors, type Assignor } from "./api"
 
@@ -20,13 +20,7 @@ export function useAssignors(): AssignorsState {
         if (controller.signal.aborted) {
           return
         }
-        setState({
-          status: "error",
-          problem:
-            error instanceof ApiError
-              ? error.problem
-              : { title: "Erro inesperado", status: 0 },
-        })
+        setState({ status: "error", problem: problemOf(error) })
       })
     return () => controller.abort()
   }, [])
