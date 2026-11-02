@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.srm.creditengine.domain.assignor.InactiveAssignorException;
 import com.srm.creditengine.domain.exchangerate.CurrencyCode;
 import com.srm.creditengine.domain.exchangerate.ExchangeRateNotFoundException;
 
@@ -75,6 +76,16 @@ class GlobalExceptionHandlerTest {
 				.andExpect(jsonPath("$.detail").value("No current USD/BRL exchange rate"));
 	}
 
+	@Test
+	void businessRuleViolationReturns422ProblemDetail() throws Exception {
+		mockMvc.perform(get("/probe/inactive-assignor"))
+				.andExpect(status().isUnprocessableContent())
+				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+				.andExpect(jsonPath("$.status").value(422))
+				.andExpect(jsonPath("$.title").value("Business rule violation"))
+				.andExpect(jsonPath("$.detail").value("Assignor 7 is inactive and cannot receive new receivables"));
+	}
+
 	@RestController
 	static class ProbeController {
 
@@ -88,6 +99,11 @@ class GlobalExceptionHandlerTest {
 		@GetMapping("/probe/boom")
 		void boom() {
 			throw new IllegalStateException("secret internal detail");
+		}
+
+		@GetMapping("/probe/inactive-assignor")
+		void inactiveAssignor() {
+			throw new InactiveAssignorException(7L);
 		}
 
 		@GetMapping("/probe/missing-rate")

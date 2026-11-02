@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.srm.creditengine.domain.BusinessRuleViolationException;
 import com.srm.creditengine.domain.exchangerate.ExchangeRateNotFoundException;
 
 @RestControllerAdvice
@@ -36,6 +37,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		problem.setTitle("Invalid request");
 		problem.setProperty("errors", violations);
 		return handleExceptionInternal(ex, problem, headers, status, request);
+	}
+
+	@ExceptionHandler(BusinessRuleViolationException.class)
+	ProblemDetail handleBusinessRuleViolation(BusinessRuleViolationException ex) {
+		ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage());
+		problem.setTitle("Business rule violation");
+		return problem;
 	}
 
 	@ExceptionHandler(ExchangeRateNotFoundException.class)
