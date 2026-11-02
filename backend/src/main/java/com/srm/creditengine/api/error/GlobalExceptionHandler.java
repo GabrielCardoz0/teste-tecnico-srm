@@ -17,7 +17,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.srm.creditengine.domain.BusinessRuleViolationException;
 import com.srm.creditengine.domain.exchangerate.ExchangeRateNotFoundException;
+import com.srm.creditengine.domain.receivable.ReceivableAlreadySettledException;
 import com.srm.creditengine.domain.receivable.ReceivableNotFoundException;
+import com.srm.creditengine.domain.settlement.SettlementNotFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -58,6 +60,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	ProblemDetail handleReceivableNotFound(ReceivableNotFoundException ex) {
 		ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
 		problem.setTitle("Receivable not found");
+		return problem;
+	}
+
+	@ExceptionHandler(ReceivableAlreadySettledException.class)
+	ProblemDetail handleReceivableAlreadySettled(ReceivableAlreadySettledException ex) {
+		ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+		problem.setTitle("Receivable already settled");
+		return problem;
+	}
+
+	@ExceptionHandler(SettlementNotFoundException.class)
+	ProblemDetail handleSettlementNotFound(SettlementNotFoundException ex) {
+		ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+		problem.setTitle("Settlement not found");
 		return problem;
 	}
 

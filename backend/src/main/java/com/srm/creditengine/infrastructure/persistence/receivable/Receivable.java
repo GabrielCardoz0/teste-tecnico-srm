@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 import com.srm.creditengine.domain.pricing.ReceivableType;
+import com.srm.creditengine.domain.receivable.ReceivableAlreadySettledException;
 import com.srm.creditengine.domain.receivable.ReceivableStatus;
 
 import jakarta.persistence.Column;
@@ -55,6 +56,13 @@ public class Receivable {
 		this.dueDate = dueDate;
 		this.status = status;
 		this.createdAt = createdAt;
+	}
+
+	public void markSettled() {
+		if (status != ReceivableStatus.PENDING) {
+			throw new ReceivableAlreadySettledException(id);
+		}
+		status = ReceivableStatus.SETTLED;
 	}
 
 	public Long getId() {
