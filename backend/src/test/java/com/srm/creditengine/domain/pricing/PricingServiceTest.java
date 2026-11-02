@@ -18,6 +18,19 @@ class PricingServiceTest {
 			List.of(new DuplicataMercantilSpread(), new ChequePreDatadoSpread()));
 
 	@Test
+	void resultExposesRatesUsedForEachType() {
+		PricingResult duplicata = pricingService.price(ReceivableType.DUPLICATA_MERCANTIL,
+				new BigDecimal("100000.00"), 3, PaymentCurrency.BRL, null);
+		PricingResult cheque = pricingService.price(ReceivableType.CHEQUE_PRE_DATADO,
+				new BigDecimal("25000.00"), 2, PaymentCurrency.BRL, null);
+
+		assertThat(duplicata.baseRate()).isEqualByComparingTo("0.01");
+		assertThat(duplicata.spread()).isEqualByComparingTo("0.015");
+		assertThat(cheque.baseRate()).isEqualByComparingTo("0.01");
+		assertThat(cheque.spread()).isEqualByComparingTo("0.025");
+	}
+
+	@Test
 	void usdHalfCentRoundsDownToEvenDigit() {
 		PricingResult result = pricingService.price(ReceivableType.DUPLICATA_MERCANTIL,
 				new BigDecimal("100000.00"), 3, PaymentCurrency.USD, RATE);

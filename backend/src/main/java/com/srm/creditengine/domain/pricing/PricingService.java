@@ -46,7 +46,8 @@ public class PricingService {
 			case BRL -> presentValueBrl;
 			case USD -> toUsd(presentValueBrl, usdBrlRate);
 		};
-		return new PricingResult(presentValueBrl, discountBrl, paymentCurrency, paymentAmount);
+		return new PricingResult(BASE_RATE, strategy.spread(), presentValueBrl, discountBrl, paymentCurrency,
+				paymentAmount);
 	}
 
 	private static BigDecimal toUsd(BigDecimal amountBrl, BigDecimal usdBrlRate) {
